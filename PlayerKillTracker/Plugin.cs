@@ -1,12 +1,18 @@
-﻿using Dalamud.Game.Command;
+﻿using System;
+using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using System.IO;
+using System.Text.RegularExpressions;
+using Dalamud.Game.Chat;
+using Dalamud.Game.Text;
+using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
-using SamplePlugin.Windows;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using PlayerKillTracker.Windows;
 
-namespace SamplePlugin;
+namespace PlayerKillTracker;
 
 public sealed class Plugin : IDalamudPlugin
 {
@@ -17,12 +23,14 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IPlayerState PlayerState { get; private set; } = null!;
     [PluginService] internal static IDataManager DataManager { get; private set; } = null!;
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
+    [PluginService]
+    public static IChatGui ChatGui { get; private set; } = null!;
 
-    private const string CommandName = "/pmycommand";
+    private const string CommandName = "/pkt";
 
     public Configuration Configuration { get; init; }
 
-    public readonly WindowSystem WindowSystem = new("SamplePlugin");
+    public readonly WindowSystem WindowSystem = new("PlayerKillTracker");
     private ConfigWindow ConfigWindow { get; init; }
     private MainWindow MainWindow { get; init; }
 
@@ -56,8 +64,11 @@ public sealed class Plugin : IDalamudPlugin
 
         // Add a simple message to the log with level set to information
         // Use /xllog to open the log window in-game
-        // Example Output: 00:57:54.959 | INF | [SamplePlugin] ===A cool log message from Sample Plugin===
+        // Example Output: 00:57:54.959 | INF | [PlayerKillTracker] ===A cool log message from Sample Plugin===
         Log.Information($"===A cool log message from {PluginInterface.Manifest.Name}===");
+        
+        ChatGui.ChatMessage += OnChatMessage;
+
     }
 
     public void Dispose()
@@ -66,6 +77,7 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.Draw -= WindowSystem.Draw;
         PluginInterface.UiBuilder.OpenConfigUi -= ToggleConfigUi;
         PluginInterface.UiBuilder.OpenMainUi -= ToggleMainUi;
+        ChatGui.ChatMessage -= OnChatMessage;
         
         WindowSystem.RemoveAllWindows();
 
@@ -80,7 +92,44 @@ public sealed class Plugin : IDalamudPlugin
         // In response to the slash command, toggle the display status of our main ui
         MainWindow.Toggle();
     }
-    
+    private void OnChatMessage(IHandleableChatMessage message)
+    {
+        var path = Configuration.PathOrSomething;
+        // Convert the SeString message to plain text
+        var messageText = message.Message.ToString();
+
+        // Define the specific text you are looking for
+        string pattern = "^You defeat [A-Z][a-zA-Z]* [A-Z][a-zA-Z]*[.!]$";
+
+        var dt = DateTime.Now;
+         //Check if the message contains your target text
+        if (Regex.IsMatch(messageText, pattern))
+        {
+            {
+                // Your logic goes here when the text is found
+                // Example: block the message from showing up in-game by setting isHandled to true
+                // isHandled = true;
+
+                if (!File.Exists(path))
+                {
+                    // Create a file to write to.
+                    using (StreamWriter sw = File.CreateText(path))
+                   {
+                       sw.WriteLine("[" + dt.ToString("HH:mm") + "]" + " " + messageText);
+                    }
+                }
+                else if (File.Exists(path))
+                {
+
+                    using (var sw = new StreamWriter(path, true))
+                    {
+                        sw.WriteLine("[" + dt.ToString("HH:mm") + "]" + " " + messageText);
+                    }
+                }
+            }
+        }
+    }
     public void ToggleConfigUi() => ConfigWindow.Toggle();
     public void ToggleMainUi() => MainWindow.Toggle();
 }
+    

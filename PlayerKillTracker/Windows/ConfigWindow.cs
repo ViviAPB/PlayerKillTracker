@@ -1,13 +1,16 @@
 ﻿using System;
+using System.IO;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
+using FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
 
-namespace SamplePlugin.Windows;
+namespace PlayerKillTracker.Windows;
 
-public class ConfigWindow : Window, IDisposable
+public partial class ConfigWindow : Window, IDisposable
 {
     private readonly Configuration configuration;
+    
 
     // We give this window a constant ID using ###.
     // This allows for labels to be dynamic, like "{FPS Counter}fps###XYZ counter window",
@@ -17,8 +20,11 @@ public class ConfigWindow : Window, IDisposable
         Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
                 ImGuiWindowFlags.NoScrollWithMouse;
 
-        Size = new Vector2(232, 90);
-        SizeCondition = ImGuiCond.Always;
+        SizeConstraints = new WindowSizeConstraints
+        {
+            MinimumSize = new Vector2(375, 330),
+            MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
+        };
 
         configuration = plugin.Configuration;
     }
@@ -40,19 +46,15 @@ public class ConfigWindow : Window, IDisposable
 
     public override void Draw()
     {
-        // Can't ref a property, so use a local copy
-        var configValue = configuration.SomePropertyToBeSavedAndWithADefault;
-        if (ImGui.Checkbox("Random Config Bool", ref configValue))
+        
+        var something = configuration.PathOrSomething;
+        if (ImGui.InputText("Log Path", ref something))
         {
-            configuration.SomePropertyToBeSavedAndWithADefault = configValue;
-            // Can save immediately on change if you don't want to provide a "Save and Close" button
-            configuration.Save();
+            configuration.PathOrSomething = something;
         }
 
-        var movable = configuration.IsConfigWindowMovable;
-        if (ImGui.Checkbox("Movable Config Window", ref movable))
-        {
-            configuration.IsConfigWindowMovable = movable;
+        if (ImGui.Button("Save"))
+        {       
             configuration.Save();
         }
     }
