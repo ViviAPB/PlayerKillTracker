@@ -1,0 +1,20 @@
+[
+  {
+    "Author": "vivi",
+    "Name": "Player Kill Tracker",
+    "Description": "Track your pvp kills!",
+    "InternalName": "PlayerKillTracker",
+    "AssemblyVersion": "1.0.0.0",
+    "TestingAssemblyVersion": null,
+    "RepoUrl": "https://github.com/ViviAPB/PlayerKillTracker",
+    "ApplicableVersion": "any",
+    "DalamudApiLevel": 15,
+    "Punchline": "Track your pvp kills!",
+    "IsHide": false,
+    "IsTestingExclusive": false,
+    "DownloadLinkInstall": "https://github.com/ViviAPB/PlayerKillTracker/releases/download/plugin/pkt-v0.1.zip",
+    "DownloadLinkTesting": "https://github.com/ViviAPB/PlayerKillTracker/releases/download/plugin/pkt-v0.1.zip",
+    "DownloadLinkUpdate": "https://github.com/ViviAPB/PlayerKillTracker/releases/download/plugin/pkt-v0.1.zip",
+    "LastUpdate": "1792212890"
+  }
+]
