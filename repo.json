@@ -4,7 +4,7 @@
     "Name": "Player Kill Tracker",
     "Description": "Track your pvp kills!",
     "InternalName": "PlayerKillTracker",
-    "AssemblyVersion": "0.0.0.1,
+    "AssemblyVersion": "0.0.0.1",
     "TestingAssemblyVersion": null,
     "RepoUrl": "https://github.com/ViviAPB/PlayerKillTracker",
     "ApplicableVersion": "any",
